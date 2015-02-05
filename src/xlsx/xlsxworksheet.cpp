@@ -1135,6 +1135,33 @@ QList<CellRange> Worksheet::mergedCells() const
 }
 
 /*!
+  Returns page margin.
+*/
+QMarginsF Worksheet::pageMargin() const
+{
+	Q_D(const Worksheet);
+	return d->pageMargin;
+}
+
+/*!
+  Returns print scale(0~1).
+*/
+float Worksheet::scale() const
+{
+	Q_D(const Worksheet);
+	return d->pageSetup.scale;
+}
+
+/*!
+  Returns page size.
+*/
+int Worksheet::pageSize() const
+{
+	Q_D(const Worksheet);
+	return d->pageSetup.paperSize;
+}
+
+/*!
  * \internal
  */
 void Worksheet::saveToXmlFile(QIODevice *device) const
@@ -1923,12 +1950,13 @@ void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
 
                     if (attributes.hasAttribute(QLatin1String("customHeight"))) {
                         info->customHeight = attributes.value(QLatin1String("customHeight")) == QLatin1String("1");
-                        //Row height is only specified when customHeight is set
-                        if(attributes.hasAttribute(QLatin1String("ht"))) {
-                            info->height = attributes.value(QLatin1String("ht")).toString().toDouble();
-                        }
                     }
 
+					if(attributes.hasAttribute(QLatin1String("ht"))) {
+						info->height = attributes.value(QLatin1String("ht")).toString().toDouble();
+					}else{
+						info->height = sheetFormatProps.defaultRowHeight;
+					}
                     //both "hidden" and "collapsed" default are false
                     info->hidden = attributes.value(QLatin1String("hidden")) == QLatin1String("1");
                     info->collapsed = attributes.value(QLatin1String("collapsed")) == QLatin1String("1");
@@ -2091,6 +2119,28 @@ void WorksheetPrivate::loadXmlMergeCells(QXmlStreamReader &reader)
         qDebug("read merge cells error");
 }
 
+void WorksheetPrivate::loadXmlPageSetup(QXmlStreamReader &reader){
+	Q_ASSERT(reader.name() == QLatin1String("pageSetup"));
+
+	QXmlStreamAttributes attributes = reader.attributes();
+	pageSetup.paperSize = attributes.value(QLatin1String("paperSize")).toString().toInt();
+	if(attributes.hasAttribute(QLatin1String("scale")))
+		pageSetup.scale = attributes.value(QLatin1String("scale")).toString().toFloat() / 100;
+	else
+		pageSetup.scale = 1.0;
+	pageSetup.orientation = attributes.value(QLatin1String("orientation")).toString();
+}
+
+void WorksheetPrivate::loadXmlPageMargins(QXmlStreamReader &reader)
+{
+	Q_ASSERT(reader.name() == QLatin1String("pageMargins"));
+
+	QXmlStreamAttributes attributes = reader.attributes();
+	pageMargin.setLeft(attributes.value(QLatin1String("left")).toString().toDouble());
+	pageMargin.setRight(attributes.value(QLatin1String("right")).toString().toDouble());
+	pageMargin.setTop(attributes.value(QLatin1String("top")).toString().toDouble());
+	pageMargin.setBottom(attributes.value(QLatin1String("bottom")).toString().toDouble());
+}
 void WorksheetPrivate::loadXmlDataValidations(QXmlStreamReader &reader)
 {
     Q_ASSERT(reader.name() == QLatin1String("dataValidations"));
@@ -2274,6 +2324,10 @@ bool Worksheet::loadFromXmlFile(QIODevice *device)
                 d->loadXmlSheetData(reader);
             } else if (reader.name() == QLatin1String("mergeCells")) {
                 d->loadXmlMergeCells(reader);
+			} else if (reader.name() == QLatin1String("pageMargins")) {
+				d->loadXmlPageMargins(reader);
+			} else if (reader.name() == QLatin1String("pageSetup")) {
+				d->loadXmlPageSetup(reader);
             } else if (reader.name() == QLatin1String("dataValidations")) {
                 d->loadXmlDataValidations(reader);
             } else if (reader.name() == QLatin1String("conditionalFormatting")) {

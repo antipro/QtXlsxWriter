@@ -149,6 +149,12 @@ struct XlsxColumnInfo
     bool collapsed;
 };
 
+struct XlsxPageSetup
+{
+	int paperSize;
+	float scale;
+	QString orientation;
+};
 class XLSX_AUTOTEST_EXPORT WorksheetPrivate : public AbstractSheetPrivate
 {
     Q_DECLARE_PUBLIC(Worksheet)
@@ -174,6 +180,8 @@ public:
     void loadXmlSheetData(QXmlStreamReader &reader);
     void loadXmlColumnsInfo(QXmlStreamReader &reader);
     void loadXmlMergeCells(QXmlStreamReader &reader);
+	void loadXmlPageMargins(QXmlStreamReader &reader);
+	void loadXmlPageSetup(QXmlStreamReader &reader);
     void loadXmlDataValidations(QXmlStreamReader &reader);
     void loadXmlSheetFormatProps(QXmlStreamReader &reader);
     void loadXmlSheetViews(QXmlStreamReader &reader);
@@ -190,6 +198,8 @@ public:
     QMap<int, QMap<int, QString> > comments;
     QMap<int, QMap<int, QSharedPointer<XlsxHyperlinkData> > > urlTable;
     QList<CellRange> merges;
+	QMarginsF pageMargin;
+	XlsxPageSetup pageSetup;
     QMap<int, QSharedPointer<XlsxRowInfo> > rowsInfo;
     QMap<int, QSharedPointer<XlsxColumnInfo> > colsInfo;
     QMap<int, QSharedPointer<XlsxColumnInfo> > colsInfoHelper;

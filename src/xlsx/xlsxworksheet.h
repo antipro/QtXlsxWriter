@@ -33,6 +33,7 @@
 #include <QMap>
 #include <QVariant>
 #include <QPointF>
+#include <QMarginsF>
 #include <QSharedPointer>
 class QIODevice;
 class QDateTime;
@@ -95,6 +96,10 @@ public:
     bool mergeCells(const CellRange &range, const Format &format=Format());
     bool unmergeCells(const CellRange &range);
     QList<CellRange> mergedCells() const;
+
+	QMarginsF pageMargin() const;
+	float scale() const;
+	int pageSize() const;
 
     bool setColumnWidth(const CellRange& range, double width);
     bool setColumnFormat(const CellRange& range, const Format &format);
