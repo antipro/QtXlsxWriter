@@ -86,7 +86,7 @@ Format Styles::dxfFormat(int idx) const
     if (idx <0 || idx >= m_dxf_formatsList.size())
         return Format();
 
-    return m_dxf_formatsList[idx];
+	return m_dxf_formatsList[idx];
 }
 
 void Styles::fixNumFmt(const Format &format)
@@ -168,10 +168,11 @@ void Styles::fixNumFmt(const Format &format)
             bool find=false;
             while (it.hasNext()) {
                 it.next();
-                if (it.value() == id)
+				if (it.value() == id){
                     const_cast<Format *>(&format)->fixNumberFormat(id, it.key());
-                find = true;
-                break;
+					find = true;
+					break;
+				}
             }
 
             if (!find) {
@@ -199,8 +200,7 @@ void Styles::addXfFormat(const Format &format, bool force)
     }
 
     //numFmt
-    if (format.hasNumFmtData() && !format.hasProperty(FormatPrivate::P_NumFmt_Id))
-        fixNumFmt(format);
+	fixNumFmt(format);
 
     //Font
     if (format.hasFontData() && !format.fontIndexValid()) {
@@ -260,8 +260,7 @@ void Styles::addXfFormat(const Format &format, bool force)
 void Styles::addDxfFormat(const Format &format, bool force)
 {
     //numFmt
-    if (format.hasNumFmtData())
-        fixNumFmt(format);
+	fixNumFmt(format);
 
     if (!format.isEmpty() && !format.dxfIndexValid()) {
         if (m_dxf_formatsHash.contains(format.formatKey()))
@@ -1066,9 +1065,9 @@ bool Styles::readCellXfs(QXmlStreamReader &reader)
                     int numFmtIndex = xfAttrs.value(QLatin1String("numFmtId")).toString().toInt();
                     bool apply = parseXsdBoolean(xfAttrs.value(QLatin1String("applyNumberFormat")).toString());
                     if(apply) {
-                        if (!m_customNumFmtIdMap.contains(numFmtIndex))
-                            format.setNumberFormatIndex(numFmtIndex);
-                        else
+						if (!m_customNumFmtIdMap.contains(numFmtIndex)){
+							format.setNumberFormatIndex(numFmtIndex);
+						}else
                             format.setNumberFormat(numFmtIndex, m_customNumFmtIdMap[numFmtIndex]->formatString);
                     }
                 }
