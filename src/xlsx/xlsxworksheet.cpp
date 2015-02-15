@@ -1660,11 +1660,9 @@ double Worksheet::columnWidth(int column)
 Format Worksheet::columnFormat(int column)
 {
     Q_D(Worksheet);
-
     QList <QSharedPointer<XlsxColumnInfo> > columnInfoList = d->getColumnInfoList(column, column);
     if (columnInfoList.count() == 1)
        return columnInfoList.at(0)->format;
-
     return Format();
 }
 
@@ -2085,7 +2083,11 @@ void WorksheetPrivate::loadXmlColumnsInfo(QXmlStreamReader &reader)
                 if (colAttrs.hasAttribute(QLatin1String("style"))) {
                     int idx = colAttrs.value(QLatin1String("style")).toString().toInt();
                     info->format = workbook->styles()->xfFormat(idx);
-                }
+				}else{
+					//use first font as default font;
+					info->format.setFont(workbook->styles()->getFontByIndex(0));
+				}
+
                 if (colAttrs.hasAttribute(QLatin1String("outlineLevel")))
                     info->outlineLevel = colAttrs.value(QLatin1String("outlineLevel")).toString().toInt();
 
@@ -2262,7 +2264,6 @@ QList <QSharedPointer<XlsxColumnInfo> > WorksheetPrivate::getColumnInfoList(int 
     if(isColumnRangeValid(colFirst,colLast))
     {
         QList<int> nodes = getColumnIndexes(colFirst, colLast);
-
         for (int idx = 0; idx < nodes.size(); ++idx) {
             int colStart = nodes[idx];
             if (colsInfo.contains(colStart)) {

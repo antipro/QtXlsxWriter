@@ -1326,7 +1326,12 @@ QColor Styles::getColorByIndex(int idx)
     }
     if (idx < 0 || idx >= m_indexedColors.size())
         return QColor();
-    return m_indexedColors[idx];
+	return m_indexedColors[idx];
+}
+
+QFont Styles::getFontByIndex(int idx)
+{
+	return m_fontsList.at(idx).font();
 }
 
 } //namespace QXlsx

@@ -78,6 +78,7 @@ public:
     bool loadFromXmlFile(QIODevice *device);
 
     QColor getColorByIndex(int idx);
+	QFont getFontByIndex(int idx);
 
 private:
     friend class Format;
